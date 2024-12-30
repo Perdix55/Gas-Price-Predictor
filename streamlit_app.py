@@ -9,7 +9,7 @@ def fetch_gas_prices(url):
     data = []  
     for entry in feed.entries:  
         try:  
-            match = re.search(r'\$(\d+(\.\d+)?)', entry.summary)  
+            match = re.search(r'\(\d+(\.\d+)?)', entry.summary)  
             if match:  
                 price = float(match.group(1))  
                 data.append({'date': entry.updated, 'price': price})  
