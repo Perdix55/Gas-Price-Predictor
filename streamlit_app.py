@@ -1,17 +1,27 @@
-import feedparser
-import pandas as pd
+import re
 
 def fetch_gas_prices(url):
+    import feedparser
     feed = feedparser.parse(url)
     data = []
     for entry in feed.entries:
-        date = entry.updated
-        price = float(entry.summary.split('$')[-1].strip())
-        data.append({'date': date, 'price': price})
+        try:
+            # Extract text after the dollar sign
+            match = re.search(r'\$(\d+(\.\d+)?)', entry.summary)
+            if match:
+                price = float(match.group(1))
+                data.append({'date': entry.updated, 'price': price})
+            else:
+                # Log entries that do not match the expected format
+                print(f"Invalid entry summary: {entry.summary}")
+        except ValueError as e:
+            # Log specific errors and continue
+            print(f"Error parsing entry: {entry.summary}, Error: {e}")
     return pd.DataFrame(data)
 
 rss_url = "https://www.eia.gov/petroleum/gasdiesel/includes/gas_diesel_rss.xml"
 gas_prices = fetch_gas_prices(rss_url)
+
 #Use Pandas and Matplotlib to visualize price trends
 
 import matplotlib.pyplot as plt
